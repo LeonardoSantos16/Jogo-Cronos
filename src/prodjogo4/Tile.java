@@ -23,7 +23,7 @@ public class Tile {
 	
 	public void pintar(Graphics g, int translacao) {
 		
-		g.drawImage(imagem,				 // imagem que ser· desenhada
+		g.drawImage(imagem,				 // imagem que ser√° desenhada
 				posx - translacao, posy, 				 // posicao
 				posx + tamx - translacao, posy + tamy,			 // posicao + tamanho
 				0, 0, 							 // inicio da imagem original

@@ -87,19 +87,19 @@ public class Robo {
 		carrinho = false;
 
 		try {
-			// CARREGANDO IMGS RobÙ morrendo
+			// CARREGANDO IMGS Rob√¥ morrendo
 			for (int i = 0; i < 10; i++) {
 				String imagem = "imagensRobo/Dead (" + (i + 1) + ").png";
 				imgMorrendo[i] = ImageIO.read(new File(imagem));
 			}
-			// CARREGANDO IMGS RobÙ atirando/correndo
+			// CARREGANDO IMGS Rob√¥ atirando/correndo
 			for (int i = 0; i < 9; i++) {
 				String imagem = "imagensRobo/RunShoot (" + (i + 1) + ").png";
 				imgAtirando[i] = ImageIO.read(new File(imagem));
 			}
 
 		} catch (IOException e) {
-			System.out.println("N„o foi possÌvel carregar a imagem");
+			System.out.println("N√£o foi poss√≠vel carregar a imagem");
 			e.printStackTrace();
 		}
 
@@ -121,7 +121,7 @@ public class Robo {
 	public boolean isAtirando() {
 		return atirando;
 	}
-	// MÈtodo respons·vel por atualizar vari·veis de controle e administrar os estados da inst‚ncia do robo
+	// M√©todo respons√°vel por atualizar vari√°veis de controle e administrar os estados da inst√¢ncia do robo
 	public void atualizar() {
 
 		if (this.posy > 1000) {
@@ -171,7 +171,7 @@ public class Robo {
 			}
 		}
 	}
-	// MÈtodo que pinta o robÙ com base no estado e nos indices
+	// M√©todo que pinta o rob√¥ com base no estado e nos indices
 	public void pintar(Graphics2D g) {
 
 		if (morreu) {
@@ -205,7 +205,7 @@ public class Robo {
 			animCarrinho.pintar(this, g);
 
 		} else { // Correndo ou parado
-			animCorrendo.pintar(this, g); // this: inst‚ncia atual do robÙ
+			animCorrendo.pintar(this, g); // this: inst√¢ncia atual do rob√¥
 		}
 	}
 
@@ -225,7 +225,7 @@ public class Robo {
 			this.direcao = dir;
 		}
 	}
-	// MÈtodo respons·vel pela lÛgica do pulo do robo
+	// M√©todo respons√°vel pela l√≥gica do pulo do robo
 	public void iniciaPulo() {
 		System.out.println("Iniciando pulo");
 		if (estaNoChao == true || pulouDenovo == false) {
@@ -241,18 +241,18 @@ public class Robo {
 			animPulando.atualizar(this);
 		}
 	}
-	// MÈtodo respons·vel pela lÛgica do carrinho do robo
+	// M√©todo respons√°vel pela l√≥gica do carrinho do robo
 	public void iniciaCarrinho() {
 		System.out.println("Iniciando carrinho");
 		carrinho = true;
 		animCarrinho.atualizar(this);
 	}
-	// MÈtodo respons·vel pela lÛgica da morte do robo
+	// M√©todo respons√°vel pela l√≥gica da morte do robo
 	public void morra() {
 		morreu = true;
 		indiceImagemAtual = 0;
 	}
-	// Inst‚ncia de tiro com base na ultima direÁ„o do robo e regras logicas pro tiro funcionar em concordancia com o personagem
+	// Inst√¢ncia de tiro com base na ultima dire√ß√£o do robo e regras logicas pro tiro funcionar em concordancia com o personagem
 	public Tiro atira() {
 
 		atirando = true;
@@ -318,7 +318,7 @@ public class Robo {
 	public void setPosy0(int posy0) {
 		this.posy0 = posy0;
 	}
-	// MÈtodo que controla as variaveis de colis„o com o ch„o do robo
+	// M√©todo que controla as variaveis de colis√£o com o ch√£o do robo
 	public void encontrouChao() {
 
 		if (tempoPulo >= 20) {
@@ -342,7 +342,7 @@ public class Robo {
 	public void setEstaNoChao(boolean estaNoChao) {
 		this.estaNoChao = estaNoChao;
 	}
-	// MÈtodo respons·vel por reiniciar o robo na tela
+	// M√©todo respons√°vel por reiniciar o robo na tela
 	public void reiniciarRobo() {
 
 		this.setPosx(50);

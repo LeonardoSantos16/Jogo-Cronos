@@ -32,7 +32,7 @@ public class Lobby extends JPanel implements MouseListener, Runnable {
 	private BufferedImage imgRobo[];
 	
 	private int timer, indice = 0;
-	// Construtor do jpanel lobby recebe um Jframe para manipulaÁ„o e uma inst‚ncia da classe janela
+	// Construtor do jpanel lobby recebe um Jframe para manipula√ß√£o e uma inst√¢ncia da classe janela
 	public Lobby(JFrame janela, Janela5 j5) {
 		
 		imgRobo = new BufferedImage[10];
@@ -91,7 +91,7 @@ public class Lobby extends JPanel implements MouseListener, Runnable {
 		Thread t = new Thread(this);
 		t.start();
 	}
-	// Este mÈtodo È, assim como em outras classes, respons·vel por atualizar a tela e tornar a 
+	// Este m√©todo √©, assim como em outras classes, respons√°vel por atualizar a tela e tornar a 
 	//classe "runnable"
 	@Override
 	public void run() {
@@ -105,8 +105,8 @@ public class Lobby extends JPanel implements MouseListener, Runnable {
             dorme();
         }
     }
-	// MÈtodo atualiza È respons·vel por atualizar vari·veis de controle como timer e indice
-	// (funciona de mesma forma em outras classes porÈm com outras variaveis)
+	// M√©todo atualiza √© respons√°vel por atualizar vari√°veis de controle como timer e indice
+	// (funciona de mesma forma em outras classes por√©m com outras variaveis)
 	private void atualiza() {
 
 		timer++;
@@ -120,7 +120,7 @@ public class Lobby extends JPanel implements MouseListener, Runnable {
 		}
 
 	}
-	// Respons·vel por reduzir o ritmo de atualizaÁ„o da Thread
+	// Respons√°vel por reduzir o ritmo de atualiza√ß√£o da Thread
 	private void dorme() {
         
         try { 
@@ -130,7 +130,7 @@ public class Lobby extends JPanel implements MouseListener, Runnable {
         }
     }
 	
-	// MÈtodo respons·vel por pintar imagens na tela, nesse caso È o gif do robo no lobby
+	// M√©todo respons√°vel por pintar imagens na tela, nesse caso √© o gif do robo no lobby
 	@Override
 	public void paintComponent(Graphics g) {
 		super.paintComponents(g);
@@ -143,7 +143,7 @@ public class Lobby extends JPanel implements MouseListener, Runnable {
 		pintar(g2d);
 
 	}
-	// MÈtodo que atualiza o indice do gif e utiliza o componente g2d para pintar no paint component
+	// M√©todo que atualiza o indice do gif e utiliza o componente g2d para pintar no paint component
 	public void pintar(Graphics2D g2d) {
 		g2d.drawImage(imgRobo[indice], 430, 120, 430 + 150, 120 + 150, 0, 0,
 				imgRobo[indice].getWidth(), imgRobo[indice].getHeight(), null);

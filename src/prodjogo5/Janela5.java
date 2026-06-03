@@ -13,7 +13,7 @@ public class Janela5 {
 	private JFrame janela;
 	private Lobby lobby;
 	private Controle controle;
-	// Método chamado pela classe de início para instanciar e administrar o jpanel do lobby e outras dependências
+	// MÃ©todo chamado pela classe de inÃ­cio para instanciar e administrar o jpanel do lobby e outras dependÃªncias
 	// utilizadas pela classe Jogo
 	public void start() {
 		
@@ -36,7 +36,7 @@ public class Janela5 {
 		janela.addKeyListener(controle);
 		
 	}
-	// Método utilizado para iniciar o processo jogo com ou sem cache (save)
+	// MÃ©todo utilizado para iniciar o processo jogo com ou sem cache (save)
 	public void carregar () {
 		
 		jogo = new Jogo(controle, janela);
@@ -60,7 +60,7 @@ public class Janela5 {
 		this.temCache = tCache;
 		this.cache = c;
 	}
-	// Método utilizado para passar o cache para o jpanel jogo 
+	// MÃ©todo utilizado para passar o cache para o jpanel jogo 
 	public void inputaCache(int x, int y, int dir, int codFase) {
 		jogo.x = x;
 		jogo.y = y;

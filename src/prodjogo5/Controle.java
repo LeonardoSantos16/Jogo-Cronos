@@ -17,7 +17,7 @@ public class Controle implements KeyListener {
 	public void keyTyped(KeyEvent e) {
 		
 	}
-	// MÈtodo respons·vel por "ouvir" quando uma tecla È pressionada e executar uma aÁ„o
+	// M√©todo respons√°vel por "ouvir" quando uma tecla √© pressionada e executar uma a√ß√£o
 	@Override
 	public void keyPressed(KeyEvent e) {
 		
@@ -50,7 +50,7 @@ public class Controle implements KeyListener {
 		}
 		
 	}
-	// MÈtodo respons·vel por "ouvir" quando uma tecla È solta e executar uma aÁ„o
+	// M√©todo respons√°vel por "ouvir" quando uma tecla √© solta e executar uma a√ß√£o
 	@Override
 	public void keyReleased(KeyEvent e) {
 		

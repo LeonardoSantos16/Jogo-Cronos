@@ -22,17 +22,17 @@ public class RoboPulando implements Animacao {
 		imgPulando = new BufferedImage[10];
 
 		try {
-			// Carregando imagens do robô pulando
+			// Carregando imagens do robÃ´ pulando
 			for (int i = 0; i < 10; i++) {
 				String imagem = "imagensRobo/Jump (" + (i + 1) + ").png";
 				imgPulando[i] = ImageIO.read(new File(imagem));
 			}
 		} catch (IOException e) {
-			System.out.println("Não consegui carregar as imagens do robô pulando");
+			System.out.println("NÃ£o consegui carregar as imagens do robÃ´ pulando");
 		}
 	}
 
-	// Física de lançamento de objetos
+	// FÃ­sica de lanÃ§amento de objetos
 	// y = y0 + v0t - (at^2)/2
 	
 	@Override

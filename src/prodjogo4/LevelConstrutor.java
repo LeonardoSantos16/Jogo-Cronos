@@ -86,7 +86,7 @@ public class LevelConstrutor extends JPanel implements MouseListener, MouseMotio
 				escreveArquivo.close();
 
 			} catch (Exception e) {
-				System.out.println("Não foi possível trabalhar com o arquivo");
+				System.out.println("NÃ£o foi possÃ­vel trabalhar com o arquivo");
 			}
 			janela.requestFocus();
 		});
@@ -189,7 +189,7 @@ public class LevelConstrutor extends JPanel implements MouseListener, MouseMotio
 			maiorIndiceUtilidades = tiles.size();
 
 		} catch (Exception e) {
-			System.out.println("Não deu pra carregar as imagens");
+			System.out.println("NÃ£o deu pra carregar as imagens");
 		}
 
 		camadaFundo = new ArrayList<Tile>();
@@ -301,21 +301,21 @@ public class LevelConstrutor extends JPanel implements MouseListener, MouseMotio
 		for (int i = 0; i < tiles.size(); i++) {
 
 			if (i % 3 == 0) {
-				g.drawImage(tiles.get(i), // imagem que será desenhada
+				g.drawImage(tiles.get(i), // imagem que serÃ¡ desenhada
 						1617, 7 + i / 3 * 75, // posicao
 						1690, 67 + i / 3 * 75, // posicao + tamanho
 						0, 0, // inicio da imagem original
 						tiles.get(i).getWidth(), // fim da imagem original
 						tiles.get(i).getHeight(), null);
 			} else if (i % 3 == 1) {
-				g.drawImage(tiles.get(i), // imagem que será desenhada
+				g.drawImage(tiles.get(i), // imagem que serÃ¡ desenhada
 						1723, 7 + i / 3 * 75, // posicao
 						1796, 67 + i / 3 * 75, // posicao + tamanho
 						0, 0, // inicio da imagem original
 						tiles.get(i).getWidth(), // fim da imagem original
 						tiles.get(i).getHeight(), null);
 			} else {
-				g.drawImage(tiles.get(i), // imagem que será desenhada
+				g.drawImage(tiles.get(i), // imagem que serÃ¡ desenhada
 						1829, 7 + i / 3 * 75, // posicao
 						1902, 67 + i / 3 * 75, // posicao + tamanho
 						0, 0, // inicio da imagem original
@@ -347,7 +347,7 @@ public class LevelConstrutor extends JPanel implements MouseListener, MouseMotio
 		// desenhando o objeto selecionado na tela
 		if (tileSelecionado != null && mouseX < 1600) {
 
-			g.drawImage(tileSelecionado, // imagem que será desenhada
+			g.drawImage(tileSelecionado, // imagem que serÃ¡ desenhada
 					mouseX - 10, mouseY - 30, // posicao
 					mouseX + 40, mouseY + 20, // posicao + tamanho
 					0, 0, // inicio da imagem original

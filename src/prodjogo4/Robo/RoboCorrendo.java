@@ -35,7 +35,7 @@ public class RoboCorrendo implements Animacao {
 
 			}
 		} catch (IOException e) {
-			System.out.println("Não foi possível carregar as imagens do robô correndo");
+			System.out.println("NÃ£o foi possÃ­vel carregar as imagens do robÃ´ correndo");
 		}
 
 	}

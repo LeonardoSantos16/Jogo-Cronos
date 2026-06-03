@@ -18,14 +18,14 @@ public class RoboEscorregando implements Animacao {
 		imgCarrinho = new BufferedImage[10];
 
 		try {
-			// Carregando imagens do robô pulando
+			// Carregando imagens do robÃ´ pulando
 			for (int i = 0; i < 10; i++) {
 				String imagem = "imagensRobo/Slide (" + (i + 1) + ").png";
 				imgCarrinho[i] = ImageIO.read(new File(imagem));
 			}
 			System.out.println("Imagens carregadas");
 		} catch (IOException e) {
-			System.out.println("Não consegui carregar as imagens do robô dando carrinho");
+			System.out.println("NÃ£o consegui carregar as imagens do robÃ´ dando carrinho");
 		}
 	}
 

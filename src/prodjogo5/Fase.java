@@ -15,7 +15,7 @@ public class Fase {
 	ArrayList<Tile> plataformas;
 	ArrayList<Tile> inimigos;
 	ArrayList<Tile> utilidades;
-	// A classe fase tem sua maior import‚ncia no construtor, onde ela ir· ler um arquivo txt com as coordenadas dos Tiles e dos inimigos e adicionara em objetos, arrays e pintar· na tela
+	// A classe fase tem sua maior import√¢ncia no construtor, onde ela ir√° ler um arquivo txt com as coordenadas dos Tiles e dos inimigos e adicionara em objetos, arrays e pintar√° na tela
 	public Fase(String nomeArquivo, ArrayList<BufferedImage> tiles) {
 		
 		camadaFundo = new ArrayList<Tile>();
@@ -65,7 +65,7 @@ public class Fase {
 		}
 		
 	}
-	// Respons·vel por pintar os tiles e inimigos
+	// Respons√°vel por pintar os tiles e inimigos
 	public void pintar(Graphics g) {
 		
 		for (int i = 0; i < camadaFundo.size(); i++) {
@@ -97,7 +97,7 @@ public class Fase {
 	public ArrayList<Tile> getPlataformas() {
 		return plataformas;
 	}
-	// MÈtodo importante para identificar o tile "porta" e adicionar um controle a ela 
+	// M√©todo importante para identificar o tile "porta" e adicionar um controle a ela 
 	public ArrayList<Tile> getPortas() {
 		
 		ArrayList<Tile> portas = new ArrayList<Tile>();

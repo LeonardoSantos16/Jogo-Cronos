@@ -7,7 +7,7 @@ public class Janela4 {
 
 	public static void main(String[] args) {
 		
-		JFrame janela = new JFrame("Construtor de níveis");
+		JFrame janela = new JFrame("Construtor de nÃ­veis");
 		janela.setVisible(true);
 		janela.setSize(1920, 1080);
 		janela.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

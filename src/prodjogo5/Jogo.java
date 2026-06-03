@@ -46,7 +46,7 @@ public class Jogo extends JPanel implements Runnable {
 
 	JButton btnSalvar = new JButton("Salvar");
 
-	// Construtor recebendo um obj do tipo controle e um jframe para manipulaÁ„o
+	// Construtor recebendo um obj do tipo controle e um jframe para manipula√ß√£o
 	public Jogo(Controle controle, JFrame janela) {
 
 		listaInimigos = new ArrayList<Inimigos>();
@@ -85,7 +85,7 @@ public class Jogo extends JPanel implements Runnable {
 						javaBot.getPosx() + " " + javaBot.getPosy() + " " + javaBot.getUltimaDirecao() + " " + codFase);
 				escreveArquivo.close();
 			} catch (Exception e) {
-				System.out.println("N„o foi possÌvel trabalhar com o arquivo");
+				System.out.println("N√£o foi poss√≠vel trabalhar com o arquivo");
 			}
 			janela.requestFocus();
 			repaint();
@@ -97,7 +97,7 @@ public class Jogo extends JPanel implements Runnable {
 
 	}
 
-	// MÈtodo que carrega o cache passado pelo jpanel lobby e pela classe Janela5
+	// M√©todo que carrega o cache passado pelo jpanel lobby e pela classe Janela5
 	public void carregarCache() {
 		javaBot.setPosx(x);
 		javaBot.setPosy(y);
@@ -138,7 +138,7 @@ public class Jogo extends JPanel implements Runnable {
 
 	}
 
-	// MÈtodo utilizado para atualizar a tela e eventos corriqueiros
+	// M√©todo utilizado para atualizar a tela e eventos corriqueiros
 	public void atualiza() {
 
 		// Verificar se passou de fase
@@ -409,7 +409,7 @@ public class Jogo extends JPanel implements Runnable {
 		}
 	}
 
-	// MÈtodo utilizado para carregar as imagens do cen·rio
+	// M√©todo utilizado para carregar as imagens do cen√°rio
 	private void carregaTiles() {
 		tiles = new ArrayList<BufferedImage>();
 		try {
@@ -442,7 +442,7 @@ public class Jogo extends JPanel implements Runnable {
 //			maiorIndiceUtilidades = tiles.size();
 
 		} catch (Exception e) {
-			System.out.println("N„o deu pra carregar as imagens");
+			System.out.println("N√£o deu pra carregar as imagens");
 		}
 	}
 
