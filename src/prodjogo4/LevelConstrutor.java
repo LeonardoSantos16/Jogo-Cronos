@@ -15,6 +15,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.util.ArrayList;
+import java.util.Queue;
 
 import javax.imageio.ImageIO;
 import javax.swing.JButton;
@@ -24,12 +25,13 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.UIManager;
 
+import controle.*;
 import prodjogo4.Robo.Robo;
 
-public class LevelConstrutor extends JPanel implements MouseListener, MouseMotionListener, KeyListener, Runnable {
+public class LevelConstrutor extends JPanel implements MouseListener, MouseMotionListener, Runnable {
 
 	private Font minhaFonte = new Font("Consolas", Font.BOLD, 30);
-
+	private ControleInvoker controle;
 	ArrayList<BufferedImage> tiles;
 	BufferedImage tileSelecionado;
 	int indiceSelecionado;
@@ -51,13 +53,35 @@ public class LevelConstrutor extends JPanel implements MouseListener, MouseMotio
 	JButton btnLimpar = new JButton("Limpar");
 	JButton btnCarregar = new JButton("Carregar");
 
-	boolean pausado = true;
+	private boolean pausado = true;
 
 	Robo javaBot;
 
 	public LevelConstrutor(JFrame janela) {
-
 		this.setLayout(null);
+		controle = new ControleInvoker();
+		javaBot = new Robo();
+
+		controle.mapearTeclaPressionada(KeyEvent.VK_D, new MoverDireitaComando(javaBot));
+		controle.mapearTeclaPressionada(KeyEvent.VK_A, new MoverEsquerdaComando(javaBot));
+		controle.mapearTeclaPressionada(KeyEvent.VK_W, new PularComando(javaBot));
+		controle.mapearTeclaPressionada(KeyEvent.VK_M, new MorrerComando(javaBot));
+		controle.mapearTeclaPressionada(KeyEvent.VK_P, new AlternarPausaComando(javaBot, this));
+		controle.mapearTeclaPressionada(KeyEvent.VK_RIGHT, new MoverCameraDireitaComando(this));
+		controle.mapearTeclaPressionada(KeyEvent.VK_LEFT, new MoverCameraEsquerdaComando(this));
+
+		controle.mapearTeclaSolta(KeyEvent.VK_A, new PararMovimentoComando(javaBot));
+		controle.mapearTeclaSolta(KeyEvent.VK_D, new PararMovimentoComando(javaBot));
+
+		// Remove a dependência da janela e captura o teclado de forma global no app
+		java.awt.KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(e -> {
+			if (e.getID() == KeyEvent.KEY_PRESSED) {
+				controle.keyPressed(e);
+			} else if (e.getID() == KeyEvent.KEY_RELEASED) {
+				controle.keyReleased(e);
+			}
+			return false; // Permite que o Swing continue processando o evento normalmente
+		});
 		// Botao salvar
 		btnSalvar.setBounds(1700, 920, 100, 30);
 		btnSalvar.addActionListener(action -> {
@@ -197,7 +221,8 @@ public class LevelConstrutor extends JPanel implements MouseListener, MouseMotio
 		inimigos = new ArrayList<Tile>();
 		utilidades = new ArrayList<Tile>();
 
-		javaBot = new Robo();
+		this.setFocusable(true);
+		this.requestFocusInWindow();
 
 		Thread t = new Thread(this);
 		t.start();
@@ -206,7 +231,11 @@ public class LevelConstrutor extends JPanel implements MouseListener, MouseMotio
 	@Override
 	public void run() {
 		while (true) {
-
+			Queue<ComandoInterface> comandos = controle.getFilaComandos();
+			while(!comandos.isEmpty()){
+				ComandoInterface comando = comandos.poll();
+				comando.executar();
+			}
 			if (!pausado) {
 
 				atualiza();
@@ -227,7 +256,8 @@ public class LevelConstrutor extends JPanel implements MouseListener, MouseMotio
 	}
 
 	public void atualiza() {
-//		System.out.println("Rodando");
+
+
 
 		javaBot.atualizar();
 		
@@ -506,57 +536,15 @@ public class LevelConstrutor extends JPanel implements MouseListener, MouseMotio
 		repaint();
 	}
 
-	@Override
-	public void keyTyped(KeyEvent e) {
-
+	public void setPausado (){
+		this.pausado = !pausado;
 	}
 
-	@Override
-	public void keyPressed(KeyEvent e) {
-
-		if (e.getKeyCode() == KeyEvent.VK_LEFT) {
-
-			if (translacao > 25) {
-				translacao -= 25;
-			}
-
-		} else if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
-
-			translacao += 25;
-
-		}
-
-		if (e.getKeyCode() == KeyEvent.VK_D) {
-			javaBot.setDirecao(1);
-		} else if (e.getKeyCode() == KeyEvent.VK_A) {
-			javaBot.setDirecao(-1);
-		}
-
-		if (e.getKeyCode() == KeyEvent.VK_W)
-			javaBot.iniciaPulo();
-
-		if (e.getKeyCode() == KeyEvent.VK_M)
-			javaBot.morra();
-
-		repaint();
+	public void setTranslacao (int translacao) {
+		this.translacao +=  translacao;
 	}
 
-	@Override
-	public void keyReleased(KeyEvent e) {
-
-		if (e.getKeyCode() == KeyEvent.VK_P) {
-			javaBot.reiniciarRobo();
-			pausado = !pausado;
-			repaint();
-		}
-
-		if (e.getKeyCode() == KeyEvent.VK_D || e.getKeyCode() == KeyEvent.VK_A)
-			javaBot.setDirecao(0);
-
-		if (e.getKeyCode() == KeyEvent.VK_SPACE) {
-			if (javaBot.podeAtirar()) {
-//				tiros.add(javaBot.atira());
-			}
-		}
+	public ControleInvoker getControle () {
+		return this.controle;
 	}
 }
