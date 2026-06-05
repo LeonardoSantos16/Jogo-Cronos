@@ -30,6 +30,10 @@ import armazenamentoStrategy.IArmazenamento;
 import armazenamentoStrategy.Notas;
 import cenarios.*;
 import controle.*;
+import ferramentaMouseEditor.FerramentaBorracha;
+import ferramentaMouseEditor.FerramentaEditor;
+import ferramentaMouseEditor.FerramentaPincel;
+import ferramentaMouseEditor.FerramentaSelecionarCenario;
 import prodjogo4.Robo.Robo;
 
 public class LevelConstrutor extends JPanel implements MouseListener, MouseMotionListener, Runnable {
@@ -37,8 +41,8 @@ public class LevelConstrutor extends JPanel implements MouseListener, MouseMotio
 	private Font minhaFonte = new Font("Consolas", Font.BOLD, 30);
 	private ControleInvoker controle;
 	ArrayList<BufferedImage> imagensTiles;
-	BufferedImage tileSelecionado;
-	int indiceSelecionado;
+	public BufferedImage tileSelecionado;
+	public int indiceSelecionado;
 
 	int maiorIndiceFundo;
 	int maiorIndicePlataforma;
@@ -51,10 +55,12 @@ public class LevelConstrutor extends JPanel implements MouseListener, MouseMotio
 
 	JButton btnSalvar = new JButton("Salvar");
 	JButton btnLimpar = new JButton("Limpar");
+	JButton btnLimparSelecao = new JButton("Limpar Seleção");
 	JButton btnCarregar = new JButton("Carregar");
 	GerenciadorArmazenamento armazenamento;
 	private boolean pausado = true;
-
+	private MotorColisao motorColisao = new MotorColisao();
+	private FerramentaEditor ferramentaAtiva;
 	Robo javaBot;
 
 	public LevelConstrutor(JFrame janela) {
@@ -97,6 +103,15 @@ public class LevelConstrutor extends JPanel implements MouseListener, MouseMotio
 			janela.requestFocus();
 		});
 		this.add(btnLimpar);
+
+		btnLimparSelecao.setBounds(1630, 880, 140, 30);
+		btnLimparSelecao.addActionListener(action -> {
+			this.tileSelecionado = null;
+			this.indiceSelecionado = -1;
+			this.ferramentaAtiva = new FerramentaBorracha(tiles);
+			repaint();
+		});
+		this.add(btnLimparSelecao);
 		// Botao Carregar um jogo salvo
 		btnCarregar.setBounds(1630, 960, 100, 30);
 		btnCarregar.addActionListener(action -> {
@@ -193,37 +208,8 @@ public class LevelConstrutor extends JPanel implements MouseListener, MouseMotio
 	public void atualiza() {
 		javaBot.atualizar();
 
-		if (!javaBot.isMorreu()) {
-			boolean conseguiu = false;
+		motorColisao.processarColisao(javaBot, tiles);
 
-			for (int i = 0; i < tiles.size(); i++) {
-				Cenario cenario = tiles.get(i);
-
-				if (javaBot.getPosx() + javaBot.getLargura() * 2 / 3 > cenario.getPosx()
-						&& javaBot.getPosx() + javaBot.getLargura() * 1 / 3 <= cenario.getPosx() + cenario.getTamx()) {
-
-					if (cenario.solido() && cenario instanceof Plataforma) {
-						if (javaBot.getPosy() + javaBot.getAltura() >= cenario.getPosy()
-								&& javaBot.getPosy() + javaBot.getAltura() <= cenario.getPosy() + cenario.getTamy() - javaBot.quantoCaiu) {
-							javaBot.encontrouChao();
-							javaBot.setPosy(cenario.getPosy() - javaBot.getAltura() + 7);
-							conseguiu = true;
-						}
-					}
-
-					if (cenario.causaDano()) {
-						if (javaBot.getPosy() + javaBot.getAltura() >= cenario.getPosy()
-								&& javaBot.getPosy() <= cenario.getPosy() + cenario.getTamy()) {
-							javaBot.morra();
-						}
-					}
-				}
-			}
-
-			if (!conseguiu) {
-				javaBot.setEstaNoChao(false);
-			}
-		}
 	}
 
 	@Override
@@ -307,84 +293,41 @@ public class LevelConstrutor extends JPanel implements MouseListener, MouseMotio
 
 	}
 
-	@Override
 	public void mouseClicked(MouseEvent e) {
-
 		if (e.getButton() == MouseEvent.BUTTON1) {
+			System.out.println("tileSelecionado" + tileSelecionado);
+			System.out.println("ferramenta ativa + " + ferramentaAtiva);
 			if (e.getX() > 1608 && e.getY() < 930) {
-				System.out.println("Mouse: " + e.getX() + ", " + e.getY());
-
-				int x = e.getX();
-				int y = e.getY();
-
-				x -= 1608;
-				x /= 106;
-
-				y -= 35;
-				y /= 75;
-
-				int indice = y * 3 + x;
-
-				System.out.println("Imagem: " + indice + " X: " + x + " Y: " + y);
-
-				if (indice < imagensTiles.size()) {
-					tileSelecionado = imagensTiles.get(indice);
-					indiceSelecionado = indice;
-				} else {
-					tileSelecionado = null;
-				}
-
-			} else {
-
-				int x = e.getX() - 10;
-				int y = e.getY() - 30;
-
-				x = x - x % 25;
-				y = y - y % 25;
+				FerramentaSelecionarCenario seletor = new FerramentaSelecionarCenario(imagensTiles, this);
+				seletor.aoClicar(e, translacao);
 
 				if (tileSelecionado != null) {
-					Cenario novoTile = null;
-					System.out.println("indice selecionado - " + indiceSelecionado);
-					System.out.println("FUndo - " + maiorIndiceFundo);
-					System.out.println("plataforma - " + maiorIndicePlataforma);
-					System.out.println("inimigo - " + maiorIndiceInimigos);
-					System.out.println("utilidades - " + maiorIndiceUtilidades);
-					if (indiceSelecionado < maiorIndiceFundo) {
-						novoTile = new CenarioFundo(tileSelecionado, x + translacao, y, 75, 75, indiceSelecionado);
-					} else if (indiceSelecionado < maiorIndicePlataforma) {
-						novoTile = new Plataforma(tileSelecionado, x + translacao, y, 75, 75, indiceSelecionado);
-					} else if (indiceSelecionado < maiorIndiceInimigos) {
-						int tamanho = indiceSelecionado == 14 ? 150 : 75;
-						novoTile = new CenarioInimigo(tileSelecionado, x + translacao, y, tamanho, tamanho, indiceSelecionado);
-					}
-					else if (indiceSelecionado < maiorIndiceUtilidades) {
-						int tamanhoY = (indiceSelecionado == 16 || indiceSelecionado == 17) ? 150 : 75;
-						int tamanhoX = (indiceSelecionado == 16 || indiceSelecionado == 17) ? 100 : 75;
-						novoTile = new CenarioUtilidades(tileSelecionado, x + translacao, y, tamanhoX, tamanhoY, indiceSelecionado);
-					}
-
-					if (novoTile != null){
-						tiles.add(novoTile);
-					}
-				}
-
-				// selecionado null remover o elemento
-				else {
-					for (int i = tiles.size() - 1; i >= 0; i--) {
-						Cenario cenario = tiles.get(i);
-						if (cenario.getPosx() - translacao <= x && cenario.getPosx() + cenario.getTamx() - translacao > x
-								&& cenario.getPosy() <= y && cenario.getPosy() + cenario.getTamy() > y) {
-							tiles.remove(i);
-						}
-					}
+					this.ferramentaAtiva = new FerramentaPincel(indiceSelecionado, maiorIndiceFundo, maiorIndiceInimigos,
+							maiorIndicePlataforma, tileSelecionado, maiorIndiceUtilidades, tiles);
+				} else {
+					this.ferramentaAtiva = new FerramentaBorracha(tiles);
 				}
 			}
+			else {
+				if (ferramentaAtiva == null) {
+					if (tileSelecionado != null) {
+						this.ferramentaAtiva = new FerramentaPincel(indiceSelecionado, maiorIndiceFundo, maiorIndiceInimigos,
+								maiorIndicePlataforma, tileSelecionado, maiorIndiceUtilidades, tiles);
+					} else {
+						this.ferramentaAtiva = new FerramentaBorracha(tiles);
+					}
+				}
+
+				ferramentaAtiva.aoClicar(e, translacao);
+			}
+
 		} else if (e.getButton() == MouseEvent.BUTTON3) {
 			tileSelecionado = null;
 		}
 
 		repaint();
 	}
+
 
 	@Override
 	public void mousePressed(MouseEvent e) {
