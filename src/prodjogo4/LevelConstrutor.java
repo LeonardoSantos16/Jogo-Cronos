@@ -5,7 +5,6 @@ import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
@@ -25,6 +24,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.UIManager;
 
+import cenarios.*;
 import controle.*;
 import prodjogo4.Robo.Robo;
 
@@ -32,7 +32,7 @@ public class LevelConstrutor extends JPanel implements MouseListener, MouseMotio
 
 	private Font minhaFonte = new Font("Consolas", Font.BOLD, 30);
 	private ControleInvoker controle;
-	ArrayList<BufferedImage> tiles;
+	ArrayList<BufferedImage> imagensTiles;
 	BufferedImage tileSelecionado;
 	int indiceSelecionado;
 
@@ -40,11 +40,7 @@ public class LevelConstrutor extends JPanel implements MouseListener, MouseMotio
 	int maiorIndicePlataforma;
 	int maiorIndiceInimigos;
 	int maiorIndiceUtilidades;
-
-	ArrayList<Tile> camadaFundo;
-	ArrayList<Tile> plataformas;
-	ArrayList<Tile> inimigos;
-	ArrayList<Tile> utilidades;
+	ArrayList<Cenario> tiles;
 
 	int mouseX, mouseY;
 	int translacao;
@@ -73,14 +69,13 @@ public class LevelConstrutor extends JPanel implements MouseListener, MouseMotio
 		controle.mapearTeclaSolta(KeyEvent.VK_A, new PararMovimentoComando(javaBot));
 		controle.mapearTeclaSolta(KeyEvent.VK_D, new PararMovimentoComando(javaBot));
 
-		// Remove a dependência da janela e captura o teclado de forma global no app
 		java.awt.KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(e -> {
 			if (e.getID() == KeyEvent.KEY_PRESSED) {
 				controle.keyPressed(e);
 			} else if (e.getID() == KeyEvent.KEY_RELEASED) {
 				controle.keyReleased(e);
 			}
-			return false; // Permite que o Swing continue processando o evento normalmente
+			return false;
 		});
 		// Botao salvar
 		btnSalvar.setBounds(1700, 920, 100, 30);
@@ -90,20 +85,17 @@ public class LevelConstrutor extends JPanel implements MouseListener, MouseMotio
 				File arquivo = new File(nomeDoArquivo + ".txt");
 				FileWriter escreveArquivo = new FileWriter(arquivo);
 
-				for (int i = 0; i < camadaFundo.size(); i++) {
-					escreveArquivo.write("#FUNDO " + camadaFundo.get(i).toString() + "\n");
-				}
-
-				for (int i = 0; i < plataformas.size(); i++) {
-					escreveArquivo.write("#PLATAFORMA " + plataformas.get(i).toString() + "\n");
-				}
-
-				for (int i = 0; i < inimigos.size(); i++) {
-					escreveArquivo.write("#INIMIGO " + inimigos.get(i).toString() + "\n");
-				}
-				
-				for (int i = 0; i < utilidades.size(); i++) {
-					escreveArquivo.write("#UTILIDADE " + utilidades.get(i).toString() + "\n");
+				for (int i = 0; i < tiles.size(); i++) {
+					Cenario cenario = tiles.get(i);
+					if (cenario instanceof CenarioFundo) {
+						escreveArquivo.write("#FUNDO " + cenario.toString() + "\n");
+					} else if (cenario instanceof Plataforma) {
+						escreveArquivo.write("#PLATAFORMA " + cenario.toString() + "\n");
+					} else if (cenario instanceof CenarioInimigo) {
+						escreveArquivo.write("#INIMIGO " + cenario.toString() + "\n");
+					} else if (cenario instanceof CenarioUtilidades) {
+						escreveArquivo.write("#UTILIDADE " + cenario.toString() + "\n");
+					}
 				}
 
 				escreveArquivo.flush();
@@ -118,10 +110,7 @@ public class LevelConstrutor extends JPanel implements MouseListener, MouseMotio
 		// Botao Limpar
 		btnLimpar.setBounds(1770, 960, 100, 30);
 		btnLimpar.addActionListener(action -> {
-			camadaFundo.clear();
-			plataformas.clear();
-			inimigos.clear();
-			utilidades.clear();
+			tiles.clear();
 			repaint();
 			janela.requestFocus();
 		});
@@ -129,11 +118,7 @@ public class LevelConstrutor extends JPanel implements MouseListener, MouseMotio
 		// Botao Carregar um jogo salvo
 		btnCarregar.setBounds(1630, 960, 100, 30);
 		btnCarregar.addActionListener(action -> {
-			camadaFundo.clear();
-			plataformas.clear();
-			inimigos.clear();
-			utilidades.clear();
-
+			tiles.clear();
 			try {
 				UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 				String caminhoLoad = System.getProperty("user.dir");
@@ -153,19 +138,19 @@ public class LevelConstrutor extends JPanel implements MouseListener, MouseMotio
 					int tamy = Integer.parseInt(partes[5]);
 
 					if (partes[0].equals("#FUNDO")) {
-						camadaFundo.add(new Tile(tiles.get(indice), posx, posy, tamx, tamy, indice));
+						tiles.add(new CenarioFundo(imagensTiles.get(indice), posx, posy, tamx, tamy, indice));
 					}
 
 					if (partes[0].equals("#PLATAFORMA")) {
-						plataformas.add(new Tile(tiles.get(indice), posx, posy, tamx, tamy, indice));
+						tiles.add(new Plataforma(imagensTiles.get(indice), posx, posy, tamx, tamy, indice));
 					}
 
 					if (partes[0].equals("#INIMIGO")) {
-						inimigos.add(new Tile(tiles.get(indice), posx, posy, tamx, tamy, indice));
+						tiles.add(new CenarioInimigo(imagensTiles.get(indice), posx, posy, tamx, tamy, indice));
 					}
-					
+
 					if (partes[0].equals("#UTILIDADE")) {
-						utilidades.add(new Tile(tiles.get(indice), posx, posy, tamx, tamy, indice));
+						tiles.add(new CenarioUtilidades(imagensTiles.get(indice), posx, posy, tamx, tamy, indice));
 					}
 
 				}
@@ -181,45 +166,41 @@ public class LevelConstrutor extends JPanel implements MouseListener, MouseMotio
 
 		tileSelecionado = null;
 
-		tiles = new ArrayList<BufferedImage>();
+		imagensTiles = new ArrayList<BufferedImage>();
 		try {
-
 			for (int i = 1; i < 7; i++) {
-				tiles.add(ImageIO.read(new File("imagensFases/Tiles/BGTile (" + i + ").png")));
+				imagensTiles.add(ImageIO.read(new File("imagensFases/Tiles/BGTile (" + i + ").png")));
 			}
 
-			maiorIndiceFundo = tiles.size();
+			maiorIndiceFundo = imagensTiles.size();
 
 			for (int i = 12; i < 16; i++) {
-				tiles.add(ImageIO.read(new File("imagensFases/Tiles/Tile (" + i + ").png")));
+				imagensTiles.add(ImageIO.read(new File("imagensFases/Tiles/Tile (" + i + ").png")));
 			}
 
-			maiorIndicePlataforma = tiles.size();
+			maiorIndicePlataforma = imagensTiles.size();
 
-			tiles.add(ImageIO.read(new File("imagensFases/Tiles/Acid (1).png")));
-			tiles.add(ImageIO.read(new File("imagensFases/Tiles/Acid (2).png")));
-			tiles.add(ImageIO.read(new File("imagensFases/Tiles/Spike.png")));
-			tiles.add(ImageIO.read(new File("imagensFases/Objects/Saw.png")));
-			tiles.add(ImageIO.read(new File("imagensPapaiNoel/Idle (1).png")));
+			imagensTiles.add(ImageIO.read(new File("imagensFases/Tiles/Acid (1).png")));
+			imagensTiles.add(ImageIO.read(new File("imagensFases/Tiles/Acid (2).png")));
+			imagensTiles.add(ImageIO.read(new File("imagensFases/Tiles/Spike.png")));
+			imagensTiles.add(ImageIO.read(new File("imagensFases/Objects/Saw.png")));
+			imagensTiles.add(ImageIO.read(new File("imagensPapaiNoel/Idle (1).png")));
 
-			maiorIndiceInimigos = tiles.size();
+			maiorIndiceInimigos = imagensTiles.size();
 
-			tiles.add(ImageIO.read(new File("imagensFases/Objects/Barrel (1).png")));
-			tiles.add(ImageIO.read(new File("imagensFases/Objects/DoorLocked.png")));
-			tiles.add(ImageIO.read(new File("imagensFases/Objects/DoorOpen.png")));
-			tiles.add(ImageIO.read(new File("imagensFases/Objects/Switch (1).png")));
-			tiles.add(ImageIO.read(new File("imagensFases/Objects/Switch (2).png")));
+			imagensTiles.add(ImageIO.read(new File("imagensFases/Objects/Barrel (1).png")));
+			imagensTiles.add(ImageIO.read(new File("imagensFases/Objects/DoorLocked.png")));
+			imagensTiles.add(ImageIO.read(new File("imagensFases/Objects/DoorOpen.png")));
+			imagensTiles.add(ImageIO.read(new File("imagensFases/Objects/Switch (1).png")));
+			imagensTiles.add(ImageIO.read(new File("imagensFases/Objects/Switch (2).png")));
 
-			maiorIndiceUtilidades = tiles.size();
+			maiorIndiceUtilidades = imagensTiles.size();
 
 		} catch (Exception e) {
 			System.out.println("Não deu pra carregar as imagens");
 		}
 
-		camadaFundo = new ArrayList<Tile>();
-		plataformas = new ArrayList<Tile>();
-		inimigos = new ArrayList<Tile>();
-		utilidades = new ArrayList<Tile>();
+		tiles = new ArrayList<Cenario>();
 
 		this.setFocusable(true);
 		this.requestFocusInWindow();
@@ -256,48 +237,37 @@ public class LevelConstrutor extends JPanel implements MouseListener, MouseMotio
 	}
 
 	public void atualiza() {
-
-
-
 		javaBot.atualizar();
-		
+
 		if (!javaBot.isMorreu()) {
-		
 			boolean conseguiu = false;
-			for (int i = 0; i < plataformas.size(); i++) {
-	
-				Tile c = plataformas.get(i);
-	
-				if (javaBot.getPosx() + javaBot.getLargura() * 2/3 > c.posx 
-						&& javaBot.getPosx() + javaBot.getLargura() * 1/3 <= c.posx + c.tamx) {
-	
-					if (javaBot.getPosy() + javaBot.getAltura() >= c.posy 
-							&& javaBot.getPosy() + javaBot.getAltura() <= c.posy + c.tamy - javaBot.quantoCaiu) {
-						javaBot.encontrouChao();
-						javaBot.setPosy(c.posy - javaBot.getAltura() + 7); 
-						conseguiu = true;
+
+			for (int i = 0; i < tiles.size(); i++) {
+				Cenario cenario = tiles.get(i);
+
+				if (javaBot.getPosx() + javaBot.getLargura() * 2 / 3 > cenario.getPosx()
+						&& javaBot.getPosx() + javaBot.getLargura() * 1 / 3 <= cenario.getPosx() + cenario.getTamx()) {
+
+					if (cenario.solido() && cenario instanceof Plataforma) {
+						if (javaBot.getPosy() + javaBot.getAltura() >= cenario.getPosy()
+								&& javaBot.getPosy() + javaBot.getAltura() <= cenario.getPosy() + cenario.getTamy() - javaBot.quantoCaiu) {
+							javaBot.encontrouChao();
+							javaBot.setPosy(cenario.getPosy() - javaBot.getAltura() + 7);
+							conseguiu = true;
+						}
+					}
+
+					if (cenario.causaDano()) {
+						if (javaBot.getPosy() + javaBot.getAltura() >= cenario.getPosy()
+								&& javaBot.getPosy() <= cenario.getPosy() + cenario.getTamy()) {
+							javaBot.morra();
+						}
 					}
 				}
 			}
-			
+
 			if (!conseguiu) {
 				javaBot.setEstaNoChao(false);
-			}
-			
-			
-			for (int i = 0; i < inimigos.size(); i++) {
-	
-				Tile c = inimigos.get(i);
-	
-				if (javaBot.getPosx() + javaBot.getLargura() * 2/3 > c.posx 
-						&& javaBot.getPosx() + javaBot.getLargura() * 1/3 <= c.posx + c.tamx) {
-	
-					if (javaBot.getPosy() + javaBot.getAltura() >= c.posy 
-							&& javaBot.getPosy() <= c.posy + c.tamy) {
-	
-						javaBot.morra();
-					}
-				}
 			}
 		}
 	}
@@ -328,50 +298,35 @@ public class LevelConstrutor extends JPanel implements MouseListener, MouseMotio
 			g.drawLine(0, i * 25, 1600, i * 25);
 		}
 
-		for (int i = 0; i < tiles.size(); i++) {
-
+		for (int i = 0; i < imagensTiles.size(); i++) {
 			if (i % 3 == 0) {
-				g.drawImage(tiles.get(i), // imagem que será desenhada
+				g.drawImage(imagensTiles.get(i), // imagem que será desenhada
 						1617, 7 + i / 3 * 75, // posicao
 						1690, 67 + i / 3 * 75, // posicao + tamanho
 						0, 0, // inicio da imagem original
-						tiles.get(i).getWidth(), // fim da imagem original
-						tiles.get(i).getHeight(), null);
+						imagensTiles.get(i).getWidth(), // fim da imagem original
+						imagensTiles.get(i).getHeight(), null);
 			} else if (i % 3 == 1) {
-				g.drawImage(tiles.get(i), // imagem que será desenhada
+				g.drawImage(imagensTiles.get(i), // imagem que será desenhada
 						1723, 7 + i / 3 * 75, // posicao
 						1796, 67 + i / 3 * 75, // posicao + tamanho
 						0, 0, // inicio da imagem original
-						tiles.get(i).getWidth(), // fim da imagem original
-						tiles.get(i).getHeight(), null);
+						imagensTiles.get(i).getWidth(), // fim da imagem original
+						imagensTiles.get(i).getHeight(), null);
 			} else {
-				g.drawImage(tiles.get(i), // imagem que será desenhada
+				g.drawImage(imagensTiles.get(i), // imagem que será desenhada
 						1829, 7 + i / 3 * 75, // posicao
 						1902, 67 + i / 3 * 75, // posicao + tamanho
 						0, 0, // inicio da imagem original
-						tiles.get(i).getWidth(), // fim da imagem original
-						tiles.get(i).getHeight(), null);
+						imagensTiles.get(i).getWidth(), // fim da imagem original
+						imagensTiles.get(i).getHeight(), null);
 			}
 		}
 
-		for (int i = 0; i < camadaFundo.size(); i++) {
-			if (camadaFundo.get(i).posx - translacao < 1550)
-				camadaFundo.get(i).pintar(g, translacao);
-		}
-
-		for (int i = 0; i < plataformas.size(); i++) {
-			if (plataformas.get(i).posx - translacao < 1550)
-				plataformas.get(i).pintar(g, translacao);
-		}
-
-		for (int i = 0; i < inimigos.size(); i++) {
-			if (inimigos.get(i).posx - translacao < 1550)
-				inimigos.get(i).pintar(g, translacao);
-		}
-
-		for (int i = 0; i < utilidades.size(); i++) {
-			if (utilidades.get(i).posx - translacao < 1550)
-				utilidades.get(i).pintar(g, translacao);
+		for (Cenario cenario : tiles) {
+			if (cenario.getPosx() - translacao < 1550){
+				cenario.pintar(g, translacao);
+			}
 		}
 
 		// desenhando o objeto selecionado na tela
@@ -418,8 +373,8 @@ public class LevelConstrutor extends JPanel implements MouseListener, MouseMotio
 
 				System.out.println("Imagem: " + indice + " X: " + x + " Y: " + y);
 
-				if (indice < tiles.size()) {
-					tileSelecionado = tiles.get(indice);
+				if (indice < imagensTiles.size()) {
+					tileSelecionado = imagensTiles.get(indice);
 					indiceSelecionado = indice;
 				} else {
 					tileSelecionado = null;
@@ -434,58 +389,38 @@ public class LevelConstrutor extends JPanel implements MouseListener, MouseMotio
 				y = y - y % 25;
 
 				if (tileSelecionado != null) {
+					Cenario novoTile = null;
+					System.out.println("indice selecionado - " + indiceSelecionado);
+					System.out.println("FUndo - " + maiorIndiceFundo);
+					System.out.println("plataforma - " + maiorIndicePlataforma);
+					System.out.println("inimigo - " + maiorIndiceInimigos);
+					System.out.println("utilidades - " + maiorIndiceUtilidades);
 					if (indiceSelecionado < maiorIndiceFundo) {
-						camadaFundo.add(new Tile(tileSelecionado, x + translacao, y, 75, 75, indiceSelecionado));
+						novoTile = new CenarioFundo(tileSelecionado, x + translacao, y, 75, 75, indiceSelecionado);
 					} else if (indiceSelecionado < maiorIndicePlataforma) {
-						plataformas.add(new Tile(tileSelecionado, x + translacao, y, 75, 75, indiceSelecionado));
+						novoTile = new Plataforma(tileSelecionado, x + translacao, y, 75, 75, indiceSelecionado);
 					} else if (indiceSelecionado < maiorIndiceInimigos) {
-						if (indiceSelecionado == 14) {
-							inimigos.add(new Tile(tileSelecionado, x + translacao, y, 150, 150, indiceSelecionado));
-						} else {
-							inimigos.add(new Tile(tileSelecionado, x + translacao, y, 75, 75, indiceSelecionado));
-						}
-					} else if (indiceSelecionado < maiorIndiceUtilidades) {
-						if (indiceSelecionado == 16 || indiceSelecionado == 17) {
-							utilidades.add(new Tile(tileSelecionado, x + translacao, y, 100, 150, indiceSelecionado));
-						} else {
-							utilidades.add(new Tile(tileSelecionado, x + translacao, y, 75, 75, indiceSelecionado));
-						}
+						int tamanho = indiceSelecionado == 14 ? 150 : 75;
+						novoTile = new CenarioInimigo(tileSelecionado, x + translacao, y, tamanho, tamanho, indiceSelecionado);
+					}
+					else if (indiceSelecionado < maiorIndiceUtilidades) {
+						int tamanhoY = (indiceSelecionado == 16 || indiceSelecionado == 17) ? 150 : 75;
+						int tamanhoX = (indiceSelecionado == 16 || indiceSelecionado == 17) ? 100 : 75;
+						novoTile = new CenarioUtilidades(tileSelecionado, x + translacao, y, tamanhoX, tamanhoY, indiceSelecionado);
+					}
 
+					if (novoTile != null){
+						tiles.add(novoTile);
 					}
 				}
+
 				// selecionado null remover o elemento
 				else {
-
-					for (int i = 0; i < camadaFundo.size(); i++) {
-						if (camadaFundo.get(i).posx - translacao <= x && camadaFundo.get(i).posx + 75 - translacao > x
-								&& camadaFundo.get(i).posy <= y && camadaFundo.get(i).posy + 75 > y) {
-							camadaFundo.remove(i);
-							i--;
-						}
-					}
-
-					for (int i = 0; i < plataformas.size(); i++) {
-						if (plataformas.get(i).posx - translacao <= x && plataformas.get(i).posx + 75 - translacao > x
-								&& plataformas.get(i).posy <= y && plataformas.get(i).posy + 75 > y) {
-							plataformas.remove(i);
-							i--;
-						}
-					}
-
-					for (int i = 0; i < inimigos.size(); i++) {
-						
-						if (inimigos.get(i).posx - translacao <= x && inimigos.get(i).posx + 75 - translacao > x
-								&& inimigos.get(i).posy <= y && inimigos.get(i).posy + 75 > y) {
-							inimigos.remove(i);
-							i--;
-						}
-					}
-
-					for (int i = 0; i < utilidades.size(); i++) {
-						if (utilidades.get(i).posx - translacao <= x && utilidades.get(i).posx + 75 - translacao > x
-								&& utilidades.get(i).posy <= y && utilidades.get(i).posy + 75 > y) {
-							utilidades.remove(i);
-							i--;
+					for (int i = tiles.size() - 1; i >= 0; i--) {
+						Cenario cenario = tiles.get(i);
+						if (cenario.getPosx() - translacao <= x && cenario.getPosx() + cenario.getTamx() - translacao > x
+								&& cenario.getPosy() <= y && cenario.getPosy() + cenario.getTamy() > y) {
+							tiles.remove(i);
 						}
 					}
 				}
