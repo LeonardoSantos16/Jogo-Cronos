@@ -14,6 +14,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Queue;
 
 import javax.imageio.ImageIO;
@@ -24,6 +25,9 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.UIManager;
 
+import armazenamentoStrategy.GerenciadorArmazenamento;
+import armazenamentoStrategy.IArmazenamento;
+import armazenamentoStrategy.Notas;
 import cenarios.*;
 import controle.*;
 import prodjogo4.Robo.Robo;
@@ -48,7 +52,7 @@ public class LevelConstrutor extends JPanel implements MouseListener, MouseMotio
 	JButton btnSalvar = new JButton("Salvar");
 	JButton btnLimpar = new JButton("Limpar");
 	JButton btnCarregar = new JButton("Carregar");
-
+	GerenciadorArmazenamento armazenamento;
 	private boolean pausado = true;
 
 	Robo javaBot;
@@ -57,7 +61,7 @@ public class LevelConstrutor extends JPanel implements MouseListener, MouseMotio
 		this.setLayout(null);
 		controle = new ControleInvoker();
 		javaBot = new Robo();
-
+		armazenamento = new GerenciadorArmazenamento(new Notas());
 		controle.mapearTeclaPressionada(KeyEvent.VK_D, new MoverDireitaComando(javaBot));
 		controle.mapearTeclaPressionada(KeyEvent.VK_A, new MoverEsquerdaComando(javaBot));
 		controle.mapearTeclaPressionada(KeyEvent.VK_W, new PularComando(javaBot));
@@ -81,29 +85,7 @@ public class LevelConstrutor extends JPanel implements MouseListener, MouseMotio
 		btnSalvar.setBounds(1700, 920, 100, 30);
 		btnSalvar.addActionListener(action -> {
 			String nomeDoArquivo = JOptionPane.showInputDialog("Qual o nome do arquivo?");
-			try {
-				File arquivo = new File(nomeDoArquivo + ".txt");
-				FileWriter escreveArquivo = new FileWriter(arquivo);
-
-				for (int i = 0; i < tiles.size(); i++) {
-					Cenario cenario = tiles.get(i);
-					if (cenario instanceof CenarioFundo) {
-						escreveArquivo.write("#FUNDO " + cenario.toString() + "\n");
-					} else if (cenario instanceof Plataforma) {
-						escreveArquivo.write("#PLATAFORMA " + cenario.toString() + "\n");
-					} else if (cenario instanceof CenarioInimigo) {
-						escreveArquivo.write("#INIMIGO " + cenario.toString() + "\n");
-					} else if (cenario instanceof CenarioUtilidades) {
-						escreveArquivo.write("#UTILIDADE " + cenario.toString() + "\n");
-					}
-				}
-
-				escreveArquivo.flush();
-				escreveArquivo.close();
-
-			} catch (Exception e) {
-				System.out.println("Não foi possível trabalhar com o arquivo");
-			}
+			armazenamento.executarSalvamento(tiles, nomeDoArquivo);
 			janela.requestFocus();
 		});
 		this.add(btnSalvar);
@@ -125,37 +107,9 @@ public class LevelConstrutor extends JPanel implements MouseListener, MouseMotio
 				JFileChooser escolherArquivo = new JFileChooser(caminhoLoad);
 				escolherArquivo.showOpenDialog(this);
 				File arquivoSelecionado = escolherArquivo.getSelectedFile();
-				BufferedReader leitorDoArquivo = new BufferedReader(new FileReader(arquivoSelecionado));
 
-				String linhaLida;
-				while ((linhaLida = leitorDoArquivo.readLine()) != null) {
-					String partes[] = linhaLida.split(" ");
-
-					int indice = Integer.parseInt(partes[1]);
-					int posx = Integer.parseInt(partes[2]);
-					int posy = Integer.parseInt(partes[3]);
-					int tamx = Integer.parseInt(partes[4]);
-					int tamy = Integer.parseInt(partes[5]);
-
-					if (partes[0].equals("#FUNDO")) {
-						tiles.add(new CenarioFundo(imagensTiles.get(indice), posx, posy, tamx, tamy, indice));
-					}
-
-					if (partes[0].equals("#PLATAFORMA")) {
-						tiles.add(new Plataforma(imagensTiles.get(indice), posx, posy, tamx, tamy, indice));
-					}
-
-					if (partes[0].equals("#INIMIGO")) {
-						tiles.add(new CenarioInimigo(imagensTiles.get(indice), posx, posy, tamx, tamy, indice));
-					}
-
-					if (partes[0].equals("#UTILIDADE")) {
-						tiles.add(new CenarioUtilidades(imagensTiles.get(indice), posx, posy, tamx, tamy, indice));
-					}
-
-				}
-				leitorDoArquivo.close();
-
+				List<Cenario> cenariosCarregados = armazenamento.executarCarregamento(imagensTiles, this, arquivoSelecionado.getAbsolutePath());
+                tiles.addAll(cenariosCarregados);
 			} catch (Exception e) {
 				System.out.println("Arquivo inapropriado");
 			}
