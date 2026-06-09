@@ -4,25 +4,23 @@ import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.Objects;
 
 import javax.imageio.ImageIO;
 
 public class RoboPulando implements Animacao {
 
-	int timer;
-	int indiceAtual;
-	
-	float aceleracao = -1;
-	float v0 = 19;
+	private int timer;
+	private int indiceAtual;
+
+	private float aceleracao = -1;
+	private float v0 = 19;
 
 	private BufferedImage imgPulando[];
 
 	public RoboPulando() {
-
 		imgPulando = new BufferedImage[10];
-
 		try {
-			// Carregando imagens do robô pulando
 			for (int i = 0; i < 10; i++) {
 				String imagem = "imagensRobo/Jump (" + (i + 1) + ").png";
 				imgPulando[i] = ImageIO.read(new File(imagem));
@@ -30,27 +28,42 @@ public class RoboPulando implements Animacao {
 		} catch (IOException e) {
 			System.out.println("Não consegui carregar as imagens do robô pulando");
 		}
+
+		indiceAtual = 0;
+		timer = 0;
 	}
 
-	// Física de lançamento de objetos
-	// y = y0 + v0t - (at^2)/2
-	
 	@Override
 	public void atualizar(Robo robo) {
+		if (robo.isEstaNoChao()) {
+			robo.setEstadoAtual(new RoboCorrendo());
+			return;
+		}
 
-		indiceAtual = 3;
-		
+		timer++;
+		if (timer >= 3) {
+			if (indiceAtual < 9) {
+				indiceAtual++;
+			}
+			timer = 0;
+		}
+
 		robo.quantoCaiu = robo.getPosy();
-		
-		if (robo.pulou) { // Queda pulo (calculo)
+
+		if (robo.pulou) {
 			robo.setPosy((int) (robo.getPosy0() - (v0 * robo.tempoPulo + (aceleracao * robo.tempoPulo * robo.tempoPulo) / 2)));
-		} else { // Queda sem pular (calculo)
+		} else {
 			robo.setPosy((int) (robo.getPosy0() - (aceleracao * robo.tempoPulo * robo.tempoPulo / 2)));
 		}
-		
+
 		robo.quantoCaiu -= robo.getPosy();
-		
 		robo.tempoPulo++;
+
+		if (robo.getDirecao() == 1) {
+			robo.setPosx(robo.getPosx() + robo.getVelocidade());
+		} else if (robo.getDirecao() == -1) {
+			robo.setPosx(robo.getPosx() - robo.getVelocidade());
+		}
 	}
 
 	@Override
@@ -66,4 +79,13 @@ public class RoboPulando implements Animacao {
 		}
 	}
 
+	@Override
+	public void mudarEstado(Robo robo, String acao) {
+		if (acao.equals("CARRINHO")){
+			robo.setEstadoAtual(new RoboEscorregando());
+		}
+		else if (acao.equals("CORRENDO")){
+			robo.setEstadoAtual(new RoboCorrendo());
+		}
+	}
 }

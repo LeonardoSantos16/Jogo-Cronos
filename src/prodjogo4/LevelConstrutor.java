@@ -65,111 +65,14 @@ public class LevelConstrutor extends JPanel implements MouseListener, MouseMotio
 
 	public LevelConstrutor(JFrame janela) {
 		this.setLayout(null);
-		controle = new ControleInvoker();
 		javaBot = new Robo();
 		armazenamento = new GerenciadorArmazenamento(new Notas());
-		controle.mapearTeclaPressionada(KeyEvent.VK_D, new MoverDireitaComando(javaBot));
-		controle.mapearTeclaPressionada(KeyEvent.VK_A, new MoverEsquerdaComando(javaBot));
-		controle.mapearTeclaPressionada(KeyEvent.VK_W, new PularComando(javaBot));
-		controle.mapearTeclaPressionada(KeyEvent.VK_M, new MorrerComando(javaBot));
-		controle.mapearTeclaPressionada(KeyEvent.VK_P, new AlternarPausaComando(javaBot, this));
-		controle.mapearTeclaPressionada(KeyEvent.VK_RIGHT, new MoverCameraDireitaComando(this));
-		controle.mapearTeclaPressionada(KeyEvent.VK_LEFT, new MoverCameraEsquerdaComando(this));
-
-		controle.mapearTeclaSolta(KeyEvent.VK_A, new PararMovimentoComando(javaBot));
-		controle.mapearTeclaSolta(KeyEvent.VK_D, new PararMovimentoComando(javaBot));
-
-		java.awt.KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(e -> {
-			if (e.getID() == KeyEvent.KEY_PRESSED) {
-				controle.keyPressed(e);
-			} else if (e.getID() == KeyEvent.KEY_RELEASED) {
-				controle.keyReleased(e);
-			}
-			return false;
-		});
-		// Botao salvar
-		btnSalvar.setBounds(1700, 920, 100, 30);
-		btnSalvar.addActionListener(action -> {
-			String nomeDoArquivo = JOptionPane.showInputDialog("Qual o nome do arquivo?");
-			armazenamento.executarSalvamento(tiles, nomeDoArquivo);
-			janela.requestFocus();
-		});
-		this.add(btnSalvar);
-		// Botao Limpar
-		btnLimpar.setBounds(1770, 960, 100, 30);
-		btnLimpar.addActionListener(action -> {
-			tiles.clear();
-			repaint();
-			janela.requestFocus();
-		});
-		this.add(btnLimpar);
-
-		btnLimparSelecao.setBounds(1630, 880, 140, 30);
-		btnLimparSelecao.addActionListener(action -> {
-			this.tileSelecionado = null;
-			this.indiceSelecionado = -1;
-			this.ferramentaAtiva = new FerramentaBorracha(tiles);
-			repaint();
-		});
-		this.add(btnLimparSelecao);
-		// Botao Carregar um jogo salvo
-		btnCarregar.setBounds(1630, 960, 100, 30);
-		btnCarregar.addActionListener(action -> {
-			tiles.clear();
-			try {
-				UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-				String caminhoLoad = System.getProperty("user.dir");
-				JFileChooser escolherArquivo = new JFileChooser(caminhoLoad);
-				escolherArquivo.showOpenDialog(this);
-				File arquivoSelecionado = escolherArquivo.getSelectedFile();
-
-				List<Cenario> cenariosCarregados = armazenamento.executarCarregamento(imagensTiles, this, arquivoSelecionado.getAbsolutePath());
-                tiles.addAll(cenariosCarregados);
-			} catch (Exception e) {
-				System.out.println("Arquivo inapropriado");
-			}
-			janela.requestFocus();
-			repaint();
-		});
-		this.add(btnCarregar);
-
 		tileSelecionado = null;
 
-		imagensTiles = new ArrayList<BufferedImage>();
-		try {
-			for (int i = 1; i < 7; i++) {
-				imagensTiles.add(ImageIO.read(new File("imagensFases/Tiles/BGTile (" + i + ").png")));
-			}
+		inicializarControles();
+		inicializarBotoes(janela);
+		carregarImagensCenario();
 
-			maiorIndiceFundo = imagensTiles.size();
-
-			for (int i = 12; i < 16; i++) {
-				imagensTiles.add(ImageIO.read(new File("imagensFases/Tiles/Tile (" + i + ").png")));
-			}
-
-			maiorIndicePlataforma = imagensTiles.size();
-
-			imagensTiles.add(ImageIO.read(new File("imagensFases/Tiles/Acid (1).png")));
-			imagensTiles.add(ImageIO.read(new File("imagensFases/Tiles/Acid (2).png")));
-			imagensTiles.add(ImageIO.read(new File("imagensFases/Tiles/Spike.png")));
-			imagensTiles.add(ImageIO.read(new File("imagensFases/Objects/Saw.png")));
-			imagensTiles.add(ImageIO.read(new File("imagensPapaiNoel/Idle (1).png")));
-
-			maiorIndiceInimigos = imagensTiles.size();
-
-			imagensTiles.add(ImageIO.read(new File("imagensFases/Objects/Barrel (1).png")));
-			imagensTiles.add(ImageIO.read(new File("imagensFases/Objects/DoorLocked.png")));
-			imagensTiles.add(ImageIO.read(new File("imagensFases/Objects/DoorOpen.png")));
-			imagensTiles.add(ImageIO.read(new File("imagensFases/Objects/Switch (1).png")));
-			imagensTiles.add(ImageIO.read(new File("imagensFases/Objects/Switch (2).png")));
-
-			maiorIndiceUtilidades = imagensTiles.size();
-
-		} catch (Exception e) {
-			System.out.println("Não deu pra carregar as imagens");
-		}
-
-		tiles = new ArrayList<Cenario>();
 
 		this.setFocusable(true);
 		this.requestFocusInWindow();
@@ -209,6 +112,112 @@ public class LevelConstrutor extends JPanel implements MouseListener, MouseMotio
 		javaBot.atualizar();
 
 		motorColisao.processarColisao(javaBot, tiles);
+
+	}
+
+	private void inicializarBotoes(JFrame janela) {
+		btnSalvar.setBounds(1700, 920, 100, 30);
+		btnSalvar.addActionListener(action -> {
+			String nomeDoArquivo = JOptionPane.showInputDialog("Qual o nome do arquivo?");
+			armazenamento.executarSalvamento(tiles, nomeDoArquivo);
+			janela.requestFocus();
+		});
+		this.add(btnSalvar);
+		// Botao Limpar
+		btnLimpar.setBounds(1770, 960, 100, 30);
+		btnLimpar.addActionListener(action -> {
+			tiles.clear();
+			repaint();
+			janela.requestFocus();
+		});
+		this.add(btnLimpar);
+
+		btnLimparSelecao.setBounds(1630, 880, 140, 30);
+		btnLimparSelecao.addActionListener(action -> {
+			this.tileSelecionado = null;
+			this.indiceSelecionado = -1;
+			this.ferramentaAtiva = new FerramentaBorracha(tiles);
+			repaint();
+		});
+		this.add(btnLimparSelecao);
+		btnCarregar.setBounds(1630, 960, 100, 30);
+		btnCarregar.addActionListener(action -> {
+			tiles.clear();
+			try {
+				UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+				String caminhoLoad = System.getProperty("user.dir");
+				JFileChooser escolherArquivo = new JFileChooser(caminhoLoad);
+				escolherArquivo.showOpenDialog(this);
+				File arquivoSelecionado = escolherArquivo.getSelectedFile();
+
+				List<Cenario> cenariosCarregados = armazenamento.executarCarregamento(imagensTiles, this, arquivoSelecionado.getAbsolutePath());
+				tiles.addAll(cenariosCarregados);
+			} catch (Exception e) {
+				System.out.println("Arquivo inapropriado");
+			}
+			janela.requestFocus();
+			repaint();
+		});
+		this.add(btnCarregar);
+	}
+
+	private void inicializarControles() {
+		controle = new ControleInvoker();
+		controle.mapearTeclaPressionada(KeyEvent.VK_D, new MoverDireitaComando(javaBot));
+		controle.mapearTeclaPressionada(KeyEvent.VK_A, new MoverEsquerdaComando(javaBot));
+		controle.mapearTeclaPressionada(KeyEvent.VK_W, new PularComando(javaBot));
+		controle.mapearTeclaPressionada(KeyEvent.VK_M, new MorrerComando(javaBot));
+		controle.mapearTeclaPressionada(KeyEvent.VK_P, new AlternarPausaComando(javaBot, this));
+		controle.mapearTeclaPressionada(KeyEvent.VK_RIGHT, new MoverCameraDireitaComando(this));
+		controle.mapearTeclaPressionada(KeyEvent.VK_LEFT, new MoverCameraEsquerdaComando(this));
+		controle.mapearTeclaSolta(KeyEvent.VK_A, new PararMovimentoComando(javaBot));
+		controle.mapearTeclaSolta(KeyEvent.VK_D, new PararMovimentoComando(javaBot));
+
+		java.awt.KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(e -> {
+			if (e.getID() == KeyEvent.KEY_PRESSED) {
+				controle.keyPressed(e);
+			} else if (e.getID() == KeyEvent.KEY_RELEASED) {
+				controle.keyReleased(e);
+			}
+			return false;
+		});
+	}
+
+	private void carregarImagensCenario() {
+		tiles = new ArrayList<Cenario>();
+		imagensTiles = new ArrayList<BufferedImage>();
+		try {
+			for (int i = 1; i < 7; i++) {
+				imagensTiles.add(ImageIO.read(new File("imagensFases/Tiles/BGTile (" + i + ").png")));
+			}
+
+			maiorIndiceFundo = imagensTiles.size();
+
+			for (int i = 12; i < 16; i++) {
+				imagensTiles.add(ImageIO.read(new File("imagensFases/Tiles/Tile (" + i + ").png")));
+			}
+
+			maiorIndicePlataforma = imagensTiles.size();
+
+			imagensTiles.add(ImageIO.read(new File("imagensFases/Tiles/Acid (1).png")));
+			imagensTiles.add(ImageIO.read(new File("imagensFases/Tiles/Acid (2).png")));
+			imagensTiles.add(ImageIO.read(new File("imagensFases/Tiles/Spike.png")));
+			imagensTiles.add(ImageIO.read(new File("imagensFases/Objects/Saw.png")));
+			imagensTiles.add(ImageIO.read(new File("imagensPapaiNoel/Idle (1).png")));
+
+			maiorIndiceInimigos = imagensTiles.size();
+
+			imagensTiles.add(ImageIO.read(new File("imagensFases/Objects/Barrel (1).png")));
+			imagensTiles.add(ImageIO.read(new File("imagensFases/Objects/DoorLocked.png")));
+			imagensTiles.add(ImageIO.read(new File("imagensFases/Objects/DoorOpen.png")));
+			imagensTiles.add(ImageIO.read(new File("imagensFases/Objects/Switch (1).png")));
+			imagensTiles.add(ImageIO.read(new File("imagensFases/Objects/Switch (2).png")));
+
+			maiorIndiceUtilidades = imagensTiles.size();
+
+		} catch (Exception e) {
+			System.out.println("Não deu pra carregar as imagens");
+		}
 
 	}
 
@@ -269,7 +278,6 @@ public class LevelConstrutor extends JPanel implements MouseListener, MouseMotio
 			}
 		}
 
-		// desenhando o objeto selecionado na tela
 		if (tileSelecionado != null && mouseX < 1600) {
 
 			g.drawImage(tileSelecionado, // imagem que será desenhada
@@ -295,8 +303,6 @@ public class LevelConstrutor extends JPanel implements MouseListener, MouseMotio
 
 	public void mouseClicked(MouseEvent e) {
 		if (e.getButton() == MouseEvent.BUTTON1) {
-			System.out.println("tileSelecionado" + tileSelecionado);
-			System.out.println("ferramenta ativa + " + ferramentaAtiva);
 			if (e.getX() > 1608 && e.getY() < 930) {
 				FerramentaSelecionarCenario seletor = new FerramentaSelecionarCenario(imagensTiles, this);
 				seletor.aoClicar(e, translacao);

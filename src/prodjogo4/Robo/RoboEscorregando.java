@@ -9,8 +9,8 @@ import javax.imageio.ImageIO;
 
 public class RoboEscorregando implements Animacao {
 
-	int timer, indiceAtual = 0;
-	int altRobo, largRobo;
+	private int timer;
+	private int indiceAtual;
 
 	private BufferedImage imgCarrinho[];
 
@@ -18,48 +18,61 @@ public class RoboEscorregando implements Animacao {
 		imgCarrinho = new BufferedImage[10];
 
 		try {
-			// Carregando imagens do robô pulando
 			for (int i = 0; i < 10; i++) {
 				String imagem = "imagensRobo/Slide (" + (i + 1) + ").png";
 				imgCarrinho[i] = ImageIO.read(new File(imagem));
 			}
-			System.out.println("Imagens carregadas");
 		} catch (IOException e) {
 			System.out.println("Não consegui carregar as imagens do robô dando carrinho");
 		}
+
+		indiceAtual = 0;
+		timer = 0;
 	}
 
 	@Override
 	public void atualizar(Robo robo) {
-		altRobo = robo.getAltura();
-		
+		if (!robo.isEstaNoChao()) {
+			robo.setEstadoAtual(new RoboPulando());
+			return;
+		}
+
+		if (robo.getUltimaDirecao() == 1) {
+			robo.setPosx(robo.getPosx() + (robo.getVelocidade() + 2));
+		} else if (robo.getUltimaDirecao() == -1) {
+			robo.setPosx(robo.getPosx() - (robo.getVelocidade() + 2));
+		}
+
 		timer++;
-		
 		if (timer >= 4) {
 			indiceAtual++;
+
 			if (indiceAtual >= 10) {
-				indiceAtual = 0;
+				robo.setEstadoAtual(new RoboCorrendo());
+				return;
 			}
 			timer = 0;
 		}
-
-//		robo.setAltura(110);
-//		robo.setLargura(170);
 	}
 
 	@Override
 	public void pintar(Robo robo, Graphics2D g) {
-		
-		if (robo.getUltimaDirecao() == 1) {														
+		if (robo.getUltimaDirecao() == 1) {
 			g.drawImage(imgCarrinho[indiceAtual], robo.getPosx(), robo.getPosy(), robo.getPosx() + robo.getLargura(),
 					robo.getPosy() + robo.getAltura(), 0, 0, imgCarrinho[indiceAtual].getWidth(),
 					imgCarrinho[indiceAtual].getHeight(), null);
-		} else if (robo.getUltimaDirecao() == -1) {												
+		} else if (robo.getUltimaDirecao() == -1) {
 			g.drawImage(imgCarrinho[indiceAtual], robo.getPosx(), robo.getPosy(), robo.getPosx() + robo.getLargura(),
 					robo.getPosy() + robo.getAltura(), imgCarrinho[indiceAtual].getWidth(), 0, 0,
 					imgCarrinho[indiceAtual].getHeight(), null);
 		}
-
 	}
 
+	@Override
+	public void mudarEstado(Robo robo, String acao) {
+		if (acao.equals("PULAR")) {
+			robo.iniciaPulo();
+			robo.setEstadoAtual(new RoboPulando());
+		}
+	}
 }
