@@ -7,5 +7,6 @@ interface Animacao {
 	public void atualizar(Robo robo);
 	
 	public void pintar(Robo robo, Graphics2D g);
-	
+
+	public void mudarEstado(Robo robo, String acao);
 }

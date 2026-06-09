@@ -15,7 +15,6 @@ public class Fase {
 	ArrayList<Tile> plataformas;
 	ArrayList<Tile> inimigos;
 	ArrayList<Tile> utilidades;
-	// A classe fase tem sua maior importância no construtor, onde ela irá ler um arquivo txt com as coordenadas dos Tiles e dos inimigos e adicionara em objetos, arrays e pintará na tela
 	public Fase(String nomeArquivo, ArrayList<BufferedImage> tiles) {
 		
 		camadaFundo = new ArrayList<Tile>();
@@ -97,7 +96,6 @@ public class Fase {
 	public ArrayList<Tile> getPlataformas() {
 		return plataformas;
 	}
-	// Método importante para identificar o tile "porta" e adicionar um controle a ela 
 	public ArrayList<Tile> getPortas() {
 		
 		ArrayList<Tile> portas = new ArrayList<Tile>();
